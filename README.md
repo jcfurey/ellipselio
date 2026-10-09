@@ -20,10 +20,13 @@
   <p align="center"><img src=ellipselio.gif alt="animated" /></p>
 
   [EllipseLIO][arXivlink] is an **Adaptive LiDAR Inertial Odometry Approach with an Ellipsoid Representation**
+
+  🎉 EllipseLIO was awarded **3rd Prize 🥉 in the COMFORT Localization Challenge** at the IROS 2026 workshop [Data in Field Robotics][comfortLink] 
 </div>
 
 [arXivlink]: http://arxiv.org/abs/2605.21150
 [IEEElink]: https://ieeexplore.ieee.org/document/11661668
+[comfortLink]: https://jonasfrey96.github.io/data_in_field_robotics/
 
 ## ROS2 Humble and Jazzy
 
