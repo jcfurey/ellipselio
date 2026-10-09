@@ -12,7 +12,7 @@
             odometry: true
             analytics: true
             tf: true
-
+            
         lidar:
             type: 1 # LIVOX = 1, VELODYNE = 2, OUSTER = 3, HESAI = 4
             rate: 10
@@ -26,7 +26,7 @@
                           0., 1., 0.,
                           0., 0., 1.]
         imu:
-            rate: 500
+            rate: 200
             acc_noise: 0.1
             gyr_noise: 0.1
             acc_bias: 0.0001
