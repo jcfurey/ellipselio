@@ -1,0 +1,40 @@
+# Ouster 128-beam, June 26, 2026 shredder-raphael TestTrack recording.
+# PointCloud2: 128 x 1024 at 10 Hz, with uint32 t offsets in nanoseconds.
+# Extrinsics from the recording's /tf_static:
+#   sensor_frame -> lidar_frame: Rz(pi), translation zero
+#   sensor_frame -> imu_frame: identity, [-0.002441, -0.009725, 0.007533]
+# T_imu_lidar maps LiDAR points into the IMU frame.
+/**:
+  ros__parameters:
+    mapping:
+      map_resolution: 0.1
+      pub_map_n_secs: 10
+
+    publish:
+      map: true
+      scan: true
+      markers: false
+      odometry: true
+      analytics: true
+      tf: true
+
+    lidar:
+      type: 3
+      rate: 10
+      scan_lines: 128
+      vertical_fov: 90.0
+      min_range: 1.0
+      max_range: 100.0
+      topic: /sensor/lidar/lidar0/points
+      t_imu_lidar: [0.002441, 0.009725, -0.007533]
+      r_imu_lidar: [-1.0, 0.0, 0.0,
+                    0.0, -1.0, 0.0,
+                    0.0, 0.0, 1.0]
+
+    imu:
+      rate: 400
+      acc_noise: 0.1
+      gyr_noise: 0.1
+      acc_bias: 0.0001
+      gyr_bias: 0.0001
+      topic: /sensor/lidar/lidar0/imu

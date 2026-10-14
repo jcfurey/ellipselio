@@ -1,0 +1,40 @@
+# Ouster OS-1-64-U13, 07052026_4_an tunnel recording.
+# Metadata: 1024x10, beam altitude angles [-21.25, 20.97] degrees, 125 Hz IMU.
+# Recorded /tf_static:
+#   os_sensor -> os_lidar: Rz(pi), [0, 0, 0.038195]
+#   os_sensor -> os_imu: identity, [-0.002441, -0.009725, 0.007533]
+# T_imu_lidar = inverse(T_sensor_imu) * T_sensor_lidar.
+/**:
+  ros__parameters:
+    mapping:
+      map_resolution: 0.1
+      pub_map_n_secs: 10
+
+    publish:
+      map: true
+      scan: true
+      markers: false
+      odometry: true
+      analytics: true
+      tf: true
+
+    lidar:
+      type: 3
+      rate: 10
+      scan_lines: 64
+      vertical_fov: 42.22
+      min_range: 1.0
+      max_range: 100.0
+      topic: /ouster/points
+      t_imu_lidar: [0.002441, 0.009725, 0.030662]
+      r_imu_lidar: [-1.0, 0.0, 0.0,
+                    0.0, -1.0, 0.0,
+                    0.0, 0.0, 1.0]
+
+    imu:
+      rate: 125
+      acc_noise: 0.1
+      gyr_noise: 0.1
+      acc_bias: 0.0001
+      gyr_bias: 0.0001
+      topic: /ouster/imu
