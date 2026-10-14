@@ -51,7 +51,9 @@ def generate_launch_description():
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
+        name='ellipselio_rviz',
         arguments=['-d', rviz_cfg],
+        parameters=[{'use_sim_time': use_sim_time}],
         condition=IfCondition(rviz_use),
         output='log'
     )

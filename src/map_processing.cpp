@@ -490,7 +490,7 @@ void MappingNode::PublishMap() {
   lock.unlock();
 
   map_msg.header.stamp = kf_state_pub_.time;
-  map_msg.header.frame_id = node_namespace_ + "/odom_ellipselio";
+  map_msg.header.frame_id = frame_prefix_ + "odom_ellipselio";
 
   SplitMap(map_msg, map_parts, (1000 * pub_map_n_secs_) / 100);
   for (auto& part : map_parts) {
@@ -505,7 +505,7 @@ void MappingNode::PublishScan() {
   sensor_msgs::msg::PointCloud2 scan_msg;
   pcl::toROSMsg(*scan_cloud_pub_, scan_msg);
   scan_msg.header.stamp = kf_state_pub_.time;
-  scan_msg.header.frame_id = node_namespace_ + "/odom_ellipselio";
+  scan_msg.header.frame_id = frame_prefix_ + "odom_ellipselio";
   pub_scan_->publish(scan_msg);
 }
 
@@ -531,7 +531,7 @@ void MappingNode::PublishMarkers() {
     marker.id = map_idx;
     marker.frame_locked = true;
     marker.lifetime = rclcpp::Duration(0, 0);
-    marker.header.frame_id = node_namespace_ + "/odom_ellipselio";
+    marker.header.frame_id = frame_prefix_ + "odom_ellipselio";
     marker.header.stamp = kf_state_pub_.time;
     marker.action = visualization_msgs::msg::Marker::ADD;
 
@@ -601,8 +601,8 @@ void MappingNode::PublishImuOdometry() {
 
   if (publish_tf_) {
     geometry_msgs::msg::TransformStamped trans;
-    trans.header.frame_id = node_namespace_ + "/odom_ellipselio";
-    trans.child_frame_id = node_namespace_ + "/imu_prop_ellipselio";
+    trans.header.frame_id = frame_prefix_ + "odom_ellipselio";
+    trans.child_frame_id = frame_prefix_ + "imu_prop_ellipselio";
     trans.header.stamp = imu_state.time;
     trans.transform.translation.x = imu_state.state.pos(0);
     trans.transform.translation.y = imu_state.state.pos(1);
@@ -617,8 +617,8 @@ void MappingNode::PublishImuOdometry() {
   if (!publish_odometry_) return;
 
   nav_msgs::msg::Odometry odom_msg;
-  odom_msg.header.frame_id = node_namespace_ + "/odom_ellipselio";
-  odom_msg.child_frame_id = node_namespace_ + "/imu_prop_ellipselio";
+  odom_msg.header.frame_id = frame_prefix_ + "odom_ellipselio";
+  odom_msg.child_frame_id = frame_prefix_ + "imu_prop_ellipselio";
   odom_msg.header.stamp = imu_state.time;
 
   odom_msg.pose.pose.position.x = imu_state.state.pos(0);
@@ -666,8 +666,8 @@ void MappingNode::PublishLidarOdometry() {
 
   if (publish_tf_) {
     geometry_msgs::msg::TransformStamped trans;
-    trans.header.frame_id = node_namespace_ + "/odom_ellipselio";
-    trans.child_frame_id = node_namespace_ + "/imu_ellipselio";
+    trans.header.frame_id = frame_prefix_ + "odom_ellipselio";
+    trans.child_frame_id = frame_prefix_ + "imu_ellipselio";
     trans.header.stamp = kf_state_pub_.time;
     trans.transform.translation.x = kf_state_pub_.state.pos(0);
     trans.transform.translation.y = kf_state_pub_.state.pos(1);
@@ -1029,6 +1029,13 @@ MappingNode::MappingNode(
                                                std::vector<double>());
 
   this->get_parameter_or<std::string>("mapping.namespace", node_namespace_, "");
+  // TF2 frame IDs must not start with '/'. Keep topic names independent.
+  const auto first = node_namespace_.find_first_not_of('/');
+  if (first != std::string::npos) {
+    frame_prefix_ = node_namespace_.substr(first);
+    while (frame_prefix_.back() == '/') frame_prefix_.pop_back();
+    frame_prefix_ += '/';
+  }
   this->get_parameter_or<int>("mapping.pub_map_n_secs", pub_map_n_secs_, 10);
   this->get_parameter_or<double>("mapping.map_resolution", map_resolution_,
                                  0.1);

@@ -175,6 +175,7 @@ class MappingNode : public rclcpp::Node {
          mean_state_time_ = 0, mean_map_time_ = 0, mean_total_time_ = 0;
 
   std::string node_namespace_;
+  std::string frame_prefix_;
 
   int pub_map_n_secs_;
   bool publish_map_;
