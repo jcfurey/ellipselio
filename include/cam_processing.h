@@ -8,7 +8,7 @@
 #ifndef CAM_PROCESSING_H_
 #define CAM_PROCESSING_H_
 
-#ifdef ROS_JAZZY
+#if __has_include(<cv_bridge/cv_bridge.hpp>)
 #include <cv_bridge/cv_bridge.hpp>
 #else
 #include <cv_bridge/cv_bridge.h>

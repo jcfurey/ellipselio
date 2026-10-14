@@ -48,9 +48,12 @@ def generate_launch_description():
         default_value='ellipselio_container',
         description='container name')
 
+    # Lyrical provides executor selection on the main container executable.
+    modern_container = os.environ.get('ROS_DISTRO') in ('lyrical', 'rolling')
     container = Node(
         package='rclcpp_components',
-        executable='component_container_mt',
+        executable='component_container' if modern_container else 'component_container_mt',
+        arguments=['--executor-type', 'multi-threaded'] if modern_container else [],
         name=container_name,
         output='screen',
         parameters=[{'use_sim_time': use_sim_time}],

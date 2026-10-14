@@ -13,7 +13,11 @@
 #include <omp.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sys/times.h>
+#if __has_include(<tf2_ros/transform_broadcaster.hpp>)
+#include <tf2_ros/transform_broadcaster.hpp>
+#else
 #include <tf2_ros/transform_broadcaster.h>
+#endif
 
 #include <Eigen/Core>
 #include <algorithm>

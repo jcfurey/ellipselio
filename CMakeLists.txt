@@ -3,12 +3,17 @@ cmake_minimum_required(VERSION 3.15)
 project(ellipselio)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 set(CMAKE_POLICY_DEFAULT_CMP0074 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0144 NEW)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -fopenmp -fPIC")
 
 find_package(ament_cmake_auto REQUIRED)
+# Only PCL common is used. Find it before pcl_conversions to avoid loading
+# every PCL component and its optional visualization/VTK dependencies.
+find_package(PCL REQUIRED COMPONENTS common)
 ament_auto_find_build_dependencies()
 
 find_package(ament_cmake REQUIRED)
@@ -21,15 +26,13 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(pcl_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(image_transport REQUIRED)
 
 find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED CONFIG)
 find_package(Eigen3 REQUIRED)
-find_package(PCL REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/EllipseLioAnalytics.msg"
@@ -38,34 +41,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_export_dependencies(rosidl_default_runtime)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
-if(EXISTS "/opt/ros/jazzy")
-  set(ROS_JAZZY ON CACHE BOOL "Auto-detected ROS Jazzy (/opt/ros/jazzy exists)")
-else()
-  set(ROS_JAZZY OFF CACHE BOOL "Auto-detected ROS not Jazzy (/opt/ros/jazzy not found)")
-endif()
-
-if(ROS_JAZZY)
-  message(STATUS "Auto-detected ROS Jazzy: enabling updated headers and includes")
-  add_compile_definitions(ROS_JAZZY)
-endif()
-
-set(dependencies
-  cv_bridge
-  rclcpp
-  rclcpp_components
-  geometry_msgs
-  nav_msgs
-  sensor_msgs
-  std_msgs
-  std_srvs
-  visualization_msgs
-  pcl_ros
-  pcl_conversions
-  image_transport
-)
-
+# ament_auto_add_library links the dependencies declared in package.xml on
+# both older ROS releases and Lyrical, where ament_target_dependencies is gone.
 ament_auto_add_library(ellipselio_mapping SHARED src/map_processing.cpp src/lidar_processing.cpp src/imu_processing.cpp src/cam_processing.cpp)
-target_include_directories(ellipselio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 target_include_directories(ellipselio_mapping PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -75,9 +53,7 @@ target_include_directories(ellipselio_mapping PUBLIC
   ${OpenCV_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
 )
-target_link_libraries(ellipselio_mapping ${PCL_LIBRARIES} ${PYTHON_LIBRARIES} ${EIGEN3_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES} ${cpp_typesupport_target})
-
-ament_target_dependencies(ellipselio_mapping ${dependencies})
+target_link_libraries(ellipselio_mapping ${PCL_LIBRARIES} Eigen3::Eigen ${OpenCV_LIBS} Boost::headers ${cpp_typesupport_target})
 
 rclcpp_components_register_node(ellipselio_mapping
 PLUGIN "ellipselio::MappingNode"
